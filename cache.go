@@ -16,6 +16,7 @@ type Cache interface {
 
 type EachCallback func(key, value interface{})
 type EvictCallback func(key, value interface{})
+type GetCallback func(key interface{}) (value interface{}, ok bool)
 type PopCallback func(key interface{}) (value interface{}, err error)
 
 var (

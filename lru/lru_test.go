@@ -8,7 +8,7 @@ import (
 )
 
 func TestLen(t *testing.T) {
-	c := New(2, nil, nil)
+	c := New(2, nil, nil, nil)
 
 	if c.Put(1, 1); c.Len() != 1 {
 		t.Errorf(`expected cache length 1, got %d\n`, c.Len())
@@ -26,7 +26,7 @@ func TestContains(t *testing.T) {
 		if k != 1 {
 			t.Errorf("evict: expect key 1, got %v\n", k)
 		}
-	}, nil)
+	}, nil, nil)
 
 	if c.Put(1, 1); !c.Contains(1) {
 		t.Error(`key 1 does not exist`)
@@ -40,17 +40,21 @@ func TestContains(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	evict := 1
 	c := New(3,
 		func(k, v interface{}) {
-			if k != evict {
-				t.Errorf("evict: expected key %v, got %v\n", evict, k)
+			if k != 1 {
+				t.Errorf("evict: expected key 1, got %v\n", k)
 			}
-			evict += 2
+		},
+		func(k interface{}) (interface{}, bool) {
+			if k == 4 {
+				return 4, true
+			}
+			return nil, false
 		},
 		func(k interface{}) (interface{}, error) {
-			if k == 4 {
-				return 4, nil
+			if k == 5 {
+				return 5, nil
 			}
 			return nil, cache.ErrKeyNotFound
 		})
@@ -58,7 +62,7 @@ func TestGet(t *testing.T) {
 	c.Put(2, 2)
 	c.Put(3, 3)
 
-	for i := 1; i < 5; i++ {
+	for i := 1; i < 6; i++ {
 		if v, e := c.Get(i); v != i || e != nil {
 			t.Errorf("\n\tfor: %v\n\texp: %v, err: <nil>\n\tgot: %v, err: %v\n", i, i, v, e)
 		}
@@ -69,18 +73,13 @@ func TestGet(t *testing.T) {
 	if v, e := c.Get(2); v != 2 || e != nil {
 		t.Errorf("\n\tfor: 2\n\texp: 2, err: <nil>\n\tgot: %v, err: %v\n", v, e)
 	}
-	if v, e := c.Get(5); v != nil || e != cache.ErrKeyNotFound {
-		t.Errorf("\n\tfor: 5\n\texp: 5, err: %v\n\tgot: %v, err: %v\n", cache.ErrKeyNotFound, v, e)
-	}
-	c.Put(5, 5)
-
 	if v, e := c.Get(5); v != 5 || e != nil {
 		t.Errorf("\n\tfor: 5\n\texp: 5, err: <nil>\n\tgot: %v, err: %v\n", v, e)
 	}
 }
 
 func TestPeek(t *testing.T) {
-	c := New(1, nil, nil)
+	c := New(1, nil, nil, nil)
 	c.Put(1, 1)
 
 	if v, ok := c.Peek(1); !ok || v != 1 {
@@ -92,7 +91,7 @@ func TestPeek(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	c := New(1, nil, nil)
+	c := New(1, nil, nil, nil)
 	c.Put(1, 1)
 	c.Remove(1)
 
@@ -103,7 +102,7 @@ func TestRemove(t *testing.T) {
 
 func TestEach(t *testing.T) {
 	n := 8
-	c := New(n, nil, nil)
+	c := New(n, nil, nil, nil)
 	exp, out := make([]int, n), make([]int, 0, n)
 
 	for i := 0; i < n; i++ {

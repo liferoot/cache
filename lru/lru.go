@@ -11,6 +11,7 @@ type LRU struct {
 	entities  map[interface{}]*list.Element
 	evictList *list.List
 	evictCb   cache.EvictCallback
+	getCb     cache.GetCallback
 	popCb     cache.PopCallback
 }
 
@@ -50,17 +51,22 @@ func (c *LRU) Each(n int, f cache.EachCallback) {
 	}
 }
 
-func (c *LRU) Get(key interface{}) (interface{}, error) {
+func (c *LRU) Get(key interface{}) (value interface{}, err error) {
 	if elem, ok := c.entities[key]; ok {
 		c.evictList.MoveToFront(elem)
 		return elem.Value.(*entity).value, nil
-	} else if c.popCb != nil {
-		value, err := c.popCb(key)
-		if err != nil {
-			return nil, err
+	} else {
+		if c.getCb != nil {
+			if value, ok = c.getCb(key); ok {
+				return
+			}
 		}
-		c.insert(key, value)
-		return value, nil
+		if c.popCb != nil {
+			if value, err = c.popCb(key); err == nil {
+				c.insert(key, value)
+			}
+			return
+		}
 	}
 	return nil, cache.ErrKeyNotFound
 }
@@ -103,7 +109,7 @@ func (c *LRU) remove(elem *list.Element) {
 	}
 }
 
-func New(cap int, evict cache.EvictCallback, pop cache.PopCallback) cache.Cache {
+func New(cap int, evict cache.EvictCallback, get cache.GetCallback, pop cache.PopCallback) cache.Cache {
 	if cap < 1 {
 		panic(`LRU: the cache capacity must be greater than zero.`)
 	}
@@ -112,6 +118,7 @@ func New(cap int, evict cache.EvictCallback, pop cache.PopCallback) cache.Cache 
 		entities:  make(map[interface{}]*list.Element),
 		evictList: list.New(),
 		evictCb:   evict,
+		getCb:     get,
 		popCb:     pop,
 	}
 }
