@@ -89,9 +89,7 @@ func (c *LRU) Remove(key interface{}) {
 
 func (c *LRU) insert(key, value interface{}) {
 	if c.evictList.Len() == c.capacity {
-		if elem := c.evictList.Back(); elem != nil {
-			c.remove(elem)
-		}
+		c.remove(c.evictList.Back())
 	}
 	c.entities[key] = c.evictList.PushFront(&entity{key, value})
 }
