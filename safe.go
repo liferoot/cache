@@ -33,9 +33,9 @@ func (s *safe) Contains(key interface{}) bool {
 	return s.c.Contains(key)
 }
 
-func (s *safe) Each(n int, f EachCallback) {
+func (s *safe) Each(n int, each EachCallback) {
 	s.mu.Lock()
-	s.c.Each(n, f)
+	s.c.Each(n, each)
 	s.mu.Unlock()
 }
 
