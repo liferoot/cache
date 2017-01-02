@@ -95,7 +95,7 @@ func (c *LRU) remove(node *linked.Node) {
 	}
 }
 
-func New(cap int, evict cache.EvictCallback, omit cache.OmitCallback) cache.Cache {
+func New(cap int, evict cache.EvictCallback, omit cache.OmitCallback) *LRU {
 	if cap < 1 {
 		panic(`LRU: the cache capacity must be greater than zero.`)
 	}
