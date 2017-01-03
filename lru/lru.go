@@ -68,7 +68,7 @@ func (c *LRU) Peek(key interface{}) (interface{}, bool) {
 	return nil, false
 }
 
-func (c LRU) Put(key, value interface{}) {
+func (c *LRU) Put(key, value interface{}) {
 	if e, ok := c.entries[key]; ok {
 		c.list.Push(e)
 		e.Value.(*entry).value = value
