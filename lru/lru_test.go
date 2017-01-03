@@ -33,6 +33,8 @@ func TestLen(t *testing.T) {
 	chklen(t, `case 3`, c, 2)
 	c.Put(3, 3)
 	chklen(t, `case 4`, c, 2)
+	c.Put(2, 22)
+	chklen(t, `case 5`, c, 2)
 }
 
 func TestClear(t *testing.T) {

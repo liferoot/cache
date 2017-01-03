@@ -87,8 +87,7 @@ func (c *LRU) Remove(key interface{}) {
 }
 
 func (c *LRU) remove(node *linked.Node) {
-	e := node.Value.(*entry)
-	c.list.Remove(node)
+	e := node.Detach().Value.(*entry)
 	delete(c.entries, e.key)
 	if c.evictCb != nil {
 		c.evictCb(e.key, e.value)
