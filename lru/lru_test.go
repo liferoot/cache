@@ -168,7 +168,7 @@ func TestEach(t *testing.T) {
 	exp, out := make([]interface{}, n), make([]interface{}, 0, n)
 
 	c.Each(0, func(k, v interface{}) {
-		t.Error(`aasd`)
+		t.Errorf("unexpected cache entry (%v, %v)", k, v)
 	})
 	for i := 0; i < n; i++ {
 		c.Put(i, i)
