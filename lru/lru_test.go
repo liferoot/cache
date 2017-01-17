@@ -67,7 +67,7 @@ func TestClearWithEvict(t *testing.T) {
 	}
 	chklen(t, `case 1`, c, l)
 	if c.Clear(); l > 0 {
-		t.Errorf("expected number of eviction %d, got %d", len(exp), l)
+		t.Errorf("expected number of eviction %d, got %d", len(exp), len(exp)-l)
 	}
 	chklen(t, `case 2`, c, 0)
 }
